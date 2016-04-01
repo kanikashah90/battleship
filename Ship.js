@@ -4,8 +4,9 @@
  * @param size
  * @constructor
  */
-function Ship(size) {
+function Ship(size, sign) {
     this.size = size;
+    this.sign = sign;
 }
 
 /**
@@ -25,3 +26,5 @@ Ship.prototype.setPosition = function() {};
  * Gets the position of the ship on the board.
  */
 Ship.prototype.getPosition = function() {};
+
+module.exports = Ship;
