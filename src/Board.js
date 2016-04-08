@@ -17,6 +17,7 @@
  * Class Board
  * It holds the state of the battleship board and provide functions to
  * modify the board.
+ * It holds the state of the board in the variable currentState
  * @param width
  * @param height
  * @constructor
