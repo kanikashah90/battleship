@@ -80,11 +80,23 @@ Board.prototype.attackCell = function(cell) {
  * Function isAlive
  * Tells if all the ships on the board are destroyed or not.
  */
-Board.prototype.isAlive = function() {};
+Board.prototype.isAlive = function() {
+    var isAlive = false;
+    this.currentState.forEach(function(row) {
+       row.forEach(function(cell) {
+          if (cell !== 0) {
+              isAlive = true;
+          }
+       });
+    });
+    return isAlive;
+};
 
 /**
  * Function getCell
  * Returns the value in the cell on the board.
+ *
+ *  @param point: Input point is normalized
  */
 Board.prototype.getCell = function(point) {
     return this.currentState[point.y][point.x];
@@ -93,10 +105,17 @@ Board.prototype.getCell = function(point) {
 /**
  * Function setCell
  * Sets the given value at the particular cell
- * @param point
+ * Returns true if successfully set
+ *
+ * @param point: Input point is normalized
  */
 Board.prototype.setCell = function(point, value) {
-    this.currentState[point.y][point.x] = value;
+    if ((point.x >= 0 && point.x < this.width) &&
+        (point.y >=0 && point.y < this.height)) {
+        this.currentState[point.y][point.x] = value;
+        return true;
+    }
+    return false;
 };
 
 /**

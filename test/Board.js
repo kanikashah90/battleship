@@ -138,7 +138,127 @@ describe('Board', function() {
                     expect(isShipAdded).to.eql(false);
                 });
             })
+        });
 
+        describe('#attackCell', function() {
+            it('should reset the cell value to default cell value', function() {
+                var testPoint = new Point(1, 1),
+                    attackCell = new Point(2, 1),
+                    testShip = new Ship(3, 'T'),
+                    testBoardBefore = [
+                        ['T', 'T', 'T', 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0]
+                    ],
+                    testBoardAfter = [
+                        ['T', 0, 'T', 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0]
+                    ];
+                testBoard.addShip(testShip, testPoint, 'horizontal');
+                expect(testBoard.currentState).to.eql(testBoardBefore);
+                testBoard.attackCell(attackCell);
+                expect(testBoard.currentState).to.eql(testBoardAfter);
+            });
+        });
+
+        describe('#isAlive', function() {
+            var testPoint,
+                testBoardBefore,
+                testShip;
+
+            beforeEach(function() {
+                testPoint = new Point(1, 1);
+                testBoardBefore = [
+                    ['T', 'T', 'T', 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0]
+                ];
+                testShip = new Ship(3, 'T');
+                testBoard.addShip(testShip, testPoint, 'horizontal');
+            });
+
+            it('should return false when all the ships on the board are' +
+               ' destroyed', function() {
+                    var isAliveReturned;
+                    expect(testBoard.currentState).to.eql(testBoardBefore);
+                    testBoard.attackCell(new Point(1, 1));
+                    testBoard.attackCell(new Point(2, 1));
+                    testBoard.attackCell(new Point(3, 1));
+                    isAliveReturned = testBoard.isAlive();
+                    expect(isAliveReturned).to.equal(false);
+            });
+
+            it('should return true when atleast one part of any ship is not' +
+                ' destroyed', function() {
+                var isAliveReturned;
+                expect(testBoard.currentState).to.eql(testBoardBefore);
+                testBoard.attackCell(new Point(1, 1));
+                testBoard.attackCell(new Point(2, 1));
+                isAliveReturned = testBoard.isAlive();
+                expect(isAliveReturned).to.equal(true);
+            })
+        });
+
+        describe('#getCell', function() {
+            it('should return the provided cell value on the board', function() {
+                var testPoint = new Point(1, 1),
+                    testShip = new Ship(3, 'T'),
+                    testBoardBefore = [
+                        ['T', 'T', 'T', 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0]
+                    ];
+                testBoard.addShip(testShip, testPoint, 'horizontal');
+                expect(testBoard.currentState).to.eql(testBoardBefore);
+                expect(testBoard.getCell(new Point(1, 0))).to.equal('T');
+            });
+        });
+
+        describe('#setCell', function() {
+            it('should set the provided cell with the provided value on the' +
+               ' board and return true', function() {
+               var testPoint = new Point(1, 1),
+                   cellValueBefore = testBoard.getCell(testPoint),
+                   cellValueAfter,
+                   returnValue;
+               expect(cellValueBefore).to.equal(0);
+               returnValue = testBoard.setCell(testPoint, 'T');
+               cellValueAfter = testBoard.getCell(testPoint);
+               expect(cellValueAfter).to.equal('T');
+               expect(returnValue).to.equal(true);
+            });
+
+            it('should return false if the cell is out of board\'s bound', function() {
+                var testPoint = new Point(6, 1),
+                    returnValue;
+                returnValue = testBoard.setCell(testPoint, 'T');
+                expect(returnValue).to.equal(false);
+            });
+
+        });
+
+        describe('#initiateBoard', function() {
+           it('should initialise create the board and initialize all cells' +
+               ' to default value', function() {
+               var testBoardExp = [
+                   [0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0]
+               ];
+               testBoard.initiateBoard();
+               expect(testBoard.currentState).to.eql(testBoardExp);
+           });
         });
     });
 });
