@@ -24,12 +24,12 @@ describe('Board', function() {
         describe('#addShip', function() {
             var testShip,
                 testBoardBefore = [
-                                    [0, 0, 0, 0, 0],
-                                    [0, 0, 0, 0, 0],
-                                    [0, 0, 0, 0, 0],
-                                    [0, 0, 0, 0, 0],
-                                    [0, 0, 0, 0, 0]
-                                ];
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0]
+                ];
             beforeEach(function () {
                 testShip = new Ship(3, 'T');
             });
@@ -49,6 +49,12 @@ describe('Board', function() {
                     isShipAdded = testBoard.addShip(testShip, testPoint, 'horizontal');
                     expect(testBoard.currentState).to.eql(testBoardAfter);
                     expect(isShipAdded).to.equal(true);
+                    expect(testBoard.ships).to.eql({
+                        0: {
+                            type: testShip,
+                            orientation: 'horizontal'
+                        }
+                    });
                 });
 
                 it('should add ship on board when orientation is vertical', function() {
@@ -65,6 +71,12 @@ describe('Board', function() {
                     isShipAdded = testBoard.addShip(testShip, testPoint, 'vertical');
                     expect(testBoard.currentState).to.eql(testBoardAfter);
                     expect(isShipAdded).to.equal(true);
+                    expect(testBoard.ships).to.eql({
+                        0: {
+                            type: testShip,
+                            orientation: 'vertical'
+                        }
+                    });
                 });
 
             });
@@ -84,6 +96,12 @@ describe('Board', function() {
                     isShipAdded = testBoard.addShip(testShip, testPoint, 'vertical');
                     expect(testBoard.currentState).to.eql(testBoardAfter);
                     expect(isShipAdded).to.equal(true);
+                    expect(testBoard.ships).to.eql({
+                        4: {
+                            type: testShip,
+                            orientation: 'vertical'
+                        }
+                    });
                 });
                 it('should add ship on board when orientation is horizontal', function() {
                     var testPoint = new Point(3, 1),
@@ -99,6 +117,12 @@ describe('Board', function() {
                     isShipAdded = testBoard.addShip(testShip, testPoint, 'horizontal');
                     expect(testBoard.currentState).to.eql(testBoardAfter);
                     expect(isShipAdded).to.eql(true);
+                    expect(testBoard.ships).to.eql({
+                        2: {
+                            type: testShip,
+                            orientation: 'horizontal'
+                        }
+                    });
                 });
             });
 
@@ -116,6 +140,12 @@ describe('Board', function() {
                 isShipAdded = testBoard.addShip(testShip, testPoint, 'horizontal');
                 expect(testBoard.currentState).to.eql(testBoardAfter);
                 expect(isShipAdded).to.eql(true);
+                expect(testBoard.ships).to.eql({
+                    21: {
+                        type: testShip,
+                        orientation: 'horizontal'
+                    }
+                });
             });
 
             describe('at an invalid location', function() {
@@ -138,6 +168,66 @@ describe('Board', function() {
                     expect(isShipAdded).to.eql(false);
                 });
             })
+        });
+
+        describe('#removeShip', function() {
+            var testPoint1 = new Point(2, 2),
+                testPoint2 = new Point(5, 2),
+                testShip1 = new Ship(3, 'T1'),
+                testShip2 = new Ship(4, 'T2'),
+                testBoardBefore = [
+                    [0, 0, 0, 0, 0],
+                    [0, 'T1', 'T1', 'T1', 'T2'],
+                    [0, 0, 0, 0, 'T2'],
+                    [0, 0, 0, 0, 'T2'],
+                    [0, 0, 0, 0, 'T2']
+                ],
+                testShipsExpected = {
+                    6: {
+                        type: testShip1,
+                        orientation: 'horizontal'
+                    },
+                    9: {
+                        type: testShip2,
+                        orientation: 'vertical'
+                    }
+                };
+
+            beforeEach(function() {
+                testBoard.addShip(testShip1, testPoint1, 'horizontal');
+                testBoard.addShip(testShip2, testPoint2, 'vertical');
+            });
+
+            it('should set the cells occupied by the ship placed horizontally' +
+               ' to default value', function() {
+                var testBoardAfter = [
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 'T2'],
+                       [0, 0, 0, 0, 'T2'],
+                       [0, 0, 0, 0, 'T2'],
+                       [0, 0, 0, 0, 'T2']
+                    ];
+                expect(testBoard.currentState).to.eql(testBoardBefore);
+                expect(testBoard.ships).to.eql(testShipsExpected);
+                testBoard.removeShip(testShip1, testPoint1);
+                expect(testBoard.currentState).to.eql(testBoardAfter);
+            });
+
+            it('should set the cells occupied by the ship placed vertically' +
+                ' to default value', function() {
+                var testBoardAfter = [
+                    [0, 0, 0, 0, 0],
+                    [0, 'T1', 'T1', 'T1', 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0]
+                ];
+                expect(testBoard.currentState).to.eql(testBoardBefore);
+                expect(testBoard.ships).to.eql(testShipsExpected);
+                testBoard.removeShip(testShip2, testPoint2);
+                expect(testBoard.currentState).to.eql(testBoardAfter);
+            });
+
         });
 
         describe('#attackCell', function() {

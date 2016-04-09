@@ -23,11 +23,13 @@
  * @constructor
  */
 
+var extend = require('util')._extend;
 var Point = require('./Point.js');
 
 function Board (width, height) {
     this.width = width;
     this.height = height;
+    this.ships = {};
     this.initiateBoard();
 };
 
@@ -35,8 +37,9 @@ function Board (width, height) {
  * Function addShip
  * Puts the ship on the board at the specified location and orientation.
  */
-Board.prototype.addShip = function(ship, point, direction) {
-    var count;
+Board.prototype.addShip = function(ship, cell, direction) {
+    var count,
+        point = extend({}, cell);
     point = normalizeUserPoint(point);
     if (direction === 'horizontal') {
         if (point.x < 0 || (ship.size + point.x) > this.width) {
@@ -50,6 +53,10 @@ Board.prototype.addShip = function(ship, point, direction) {
         for (count = point.x; count < ship.size + point.x; count++) {
             this.setCell(new Point(count, point.y), ship.sign);
         }
+        this.ships[calcNumberFromCell(point, this.width)] = {
+            type: ship,
+            orientation: direction
+        };
         return true;
     } else if (direction === 'vertical') {
         if (point.y < 0 || (ship.size + point.y) > this.height) {
@@ -63,8 +70,51 @@ Board.prototype.addShip = function(ship, point, direction) {
         for (count = point.y; count < ship.size + point.y; count++) {
             this.setCell(new Point(point.x, count), ship.sign);
         }
+        this.ships[calcNumberFromCell(point, this.width)] = {
+            type: ship,
+            orientation: direction
+        };
         return true;
     }
+};
+
+/**
+ * Function removeShip
+ * Removes the provided ship from the board
+ * @param ship - Instance of the Ship
+ * @param cell - for horizontally placed ships, cell is leftmost cell
+ *              occupied by the ship
+ *              - for vertically places ships, cell is top most cell
+ *              occupied by the ship
+ */
+Board.prototype.removeShip = function(ship, cell) {
+    var point = extend({}, cell);
+    point = normalizeUserPoint(point);
+    var shipInstance = this.ships[calcNumberFromCell(point, this.width)],
+        ship = shipInstance && shipInstance.type,
+        shipSize = ship && ship.size,
+        setSuccess;
+
+    // Reset all the cells occupied by the ship to default value of 0
+    if (shipInstance.orientation === 'horizontal') {
+        for(var i = point.x; i < point.x + shipSize; i++) {
+            setSuccess = this.setCell(new Point(i, point.y), 0);
+            if (!setSuccess) {
+                return false;
+            }
+        }
+        return true;
+    }
+    if(shipInstance.orientation === 'vertical') {
+        for(var j = point.y; j < point.y + shipSize; j++) {
+            setSuccess = this.setCell(new Point(point.x, j), 0);
+            if (!setSuccess) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
 };
 
 /**
@@ -72,8 +122,9 @@ Board.prototype.addShip = function(ship, point, direction) {
  * Destroys the position/ship on the board at the specified cell.
  */
 Board.prototype.attackCell = function(cell) {
-    cell  = normalizeUserPoint(cell);
-    this.setCell(cell, 0);
+    var point = extend({}, cell);
+    point  = normalizeUserPoint(point);
+    this.setCell(point, 0);
 };
 
 /**
@@ -142,6 +193,25 @@ function normalizeUserPoint(point) {
         point.y = point.y - 1;
     }
     return point;
+}
+
+/**
+ * Calculates cell number on board from the point based on following equation
+ * number  = point.y * this.width + point.x
+ * @param point
+ * @param width
+ * @returns {number}
+ */
+function calcNumberFromCell(point, width) {
+    var number = point.y * width;
+    number += point.x;
+    return number;
+}
+
+function calcCellFromNumber(number, width) {
+    var x = number % width,
+        y = (number - x)/width;
+    return new Point(x, y);
 }
 
 module.exports = Board;
