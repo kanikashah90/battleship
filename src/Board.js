@@ -185,11 +185,17 @@ Board.prototype.initiateBoard = function() {
     }
 };
 
+/**
+ * Function normalizeUserPoint
+ * Normalizes the point by changing indexing from 1 to 0
+ * @param point
+ * @returns {*}
+ */
 function normalizeUserPoint(point) {
-    if (point && point.x) {
+    if (point !== undefined && point.x !== undefined) {
         point.x = point.x - 1;
     }
-    if (point && point.y) {
+    if (point !== undefined && point.y !== undefined) {
         point.y = point.y - 1;
     }
     return point;
