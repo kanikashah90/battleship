@@ -186,6 +186,30 @@ Board.prototype.initiateBoard = function() {
 };
 
 /**
+ * Function toString
+ * Prints the current board status in comprehensible way
+ */
+Board.prototype.toString = function() {
+    var printBoard = '',
+        printRow;
+
+    printBoard += '\n';
+    this.currentState.forEach(function(row) {
+        printRow = '\t\t\t\t';
+        row.forEach(function(col) {
+            if (col === 0) {
+                printRow += '-';
+            } else {
+                printRow += col;
+            }
+            printRow += '\t';
+        });
+        printBoard += printRow + '\n';
+    });
+    return printBoard;
+};
+
+/**
  * Function normalizeUserPoint
  * Normalizes the point by changing indexing from 1 to 0
  * @param point

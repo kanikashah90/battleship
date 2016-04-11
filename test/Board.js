@@ -350,5 +350,18 @@ describe('Board', function() {
                expect(testBoard.currentState).to.eql(testBoardExp);
            });
         });
+
+        describe('#toString', function() {
+            it('should return a comprehensible representation of the board', function() {
+                var returnStringExp = '\n' +
+                    '\t\t\t\t' + '-\t-\t-\t-\t-\t' + '\n' +
+                    '\t\t\t\t' + '-\t-\t-\t-\t-\t' + '\n' +
+                    '\t\t\t\t' + '-\t-\t-\t-\t-\t' + '\n' +
+                    '\t\t\t\t' + '-\t-\t-\t-\t-\t' + '\n' +
+                    '\t\t\t\t' + '-\t-\t-\t-\t-\t' + '\n',
+                    returnStringRec = testBoard.toString();
+                expect(returnStringRec).to.equal(returnStringExp);
+            });
+        });
     });
 });
