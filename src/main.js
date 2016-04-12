@@ -2,6 +2,33 @@ var Board = require('./Board.js');
 var Ship = require('./Ship.js');
 var Point = require('./Point.js');
 var stdin = process.stdin;
+var http = require('http');
+var fs = require('fs');
+
+http.createServer(function(req, res) {
+    var filePath = '../ui' + req.url;
+    if(filePath === '../ui/') {
+        filePath = '../ui/index.html';
+    }
+    var extension = filePath.substring(filePath.lastIndexOf('.')),
+        contentType;
+    switch(extension) {
+        case 'html':
+            contenType = 'text/html';
+            break;
+        case 'js':
+            contenType = 'text/javascript';
+            break;
+
+    }
+    fs.readFile(filePath, function(err, file) {
+        if(!err) {
+            res.writeHead(200, {"Content-type": contentType});
+            res.end(file, "utf-8");
+        }
+    });
+
+}).listen(8080);
 
 stdin.setEncoding('utf8');
 
@@ -195,4 +222,4 @@ var doBoardSetup = function() {
     addNewShip();
 };
 
-doBoardSetup();
+//doBoardSetup();
