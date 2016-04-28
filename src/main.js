@@ -6,33 +6,143 @@ var http = require('http');
 var fs = require('fs');
 
 http.createServer(function(req, res) {
-    var filePath = '../ui' + req.url;
-    if(filePath === '../ui/') {
-        filePath = '../ui/index.html';
+    // Check if the request being made is rest request or file request
+    var reqUrl = req.url,
+        isFileReq = false;
+    if (reqUrl.indexOf('.') > -1 || req.url === '/') {
+        isFileReq = true;
     }
-    var extension = filePath.substring(filePath.lastIndexOf('.')),
-        contentType;
-    switch(extension) {
-        case 'html':
-            contenType = 'text/html';
-            break;
-        case 'js':
-            contenType = 'text/javascript';
-            break;
+    // Rest request
+    if(!isFileReq) {
+        var resHeaders = {},
+            resData;
+        // All GET Methods
+        if(req.method === 'GET') {
+            resHeaders['Content-Type'] = 'application/json';
+            // Return the ships that can be used in the game
+            if (reqUrl === '/ships') {
+                var resData = [
+                    {
+                        name: 'Aircraft Carrier',
+                        size: 5,
+                        sign: 'A',
+                        instances: 10
+                    },
+                    {
+                        name: 'Battleship',
+                        size: 4,
+                        sign: 'B',
+                        instances: 10
+                    },
+                    {
+                        name: 'Submarine',
+                        size: 3,
+                        sign: 'S',
+                        instances: 10
+                    },
+                    {
+                        name: 'Destroyer',
+                        size: 3,
+                        sign: 'D',
+                        instances: 10
+                    },
+                    {
+                        name: 'Patrol Boat',
+                        size: 2,
+                        sign: 'P',
+                        instances: 10
+                    }
+                ];
+                res.writeHead(200, resHeaders);
+                res.end(JSON.stringify(resData), "utf-8");
+            }
+            // Return the opponents board state
+            if (reqUrl === '/opponent') {
 
-    }
-    fs.readFile(filePath, function(err, file) {
-        if(!err) {
-            res.writeHead(200, {"Content-type": contentType});
-            res.end(file, "utf-8");
+            }
+            // Return the dimension of the board
+            if (reqUrl == '/dimension') {
+
+            }
         }
-    });
+        // All POST Methods
+        if(req.method === 'POST') {
+            var body = '';
+            req.on('data', function(data) {
+                body += data;
+            });
+            req.on('end', function() {
+                body = JSON.parse(body);
+                processRequest(body);
+            });
 
-}).listen(8080);
+            var processRequest = function() {
+                // Sets the dimension of the
+                if (reqUrl === '/dimension') {
+
+                }
+                // Adds the ship on the board
+                if (reqUrl === '/addShip') {
+                    resHeaders['Content-Type'] = 'text/plain';
+                    // Do sanity check on all the inputs
+                    var board = body.board,
+                        ship = new Ship(body.ship.size, body.ship.sign),
+                        point = new Point(body.point.x, body.point.y),
+                        orientation = body.orientation;
+                    var shipAdded = Board.addShip(board, ship, point, orientation);
+                    if (shipAdded) {
+                        res.writeHead(200,resHeaders);
+                        res.end();
+                    } else {
+                        res.writeHead(400, resHeaders);
+                        res.end('Ship cannot be added on the board', 'utf-8');
+                    }
+                }
+                // Remove ship from the board
+                if (reqUrl === '/removeShip') {
+
+                }
+                // Change ship location
+                if (reqUrl === 'changeShip') {
+
+                }
+                // Attacks the opponent cell
+                if (reqUrl === '/attackOpp') {
+
+                }
+            }
+        }
+    }
+
+    // File request
+    if(isFileReq) {
+        var filePath = '../ui' + req.url;
+        if(filePath === '../ui/') {
+            filePath = '../ui/index.html';
+        }
+        var extension = filePath.substring(filePath.lastIndexOf('.')),
+            contentType;
+        switch(extension) {
+            case 'html':
+                contenType = 'text/html';
+                break;
+            case 'js':
+                contenType = 'text/javascript';
+                break;
+
+        }
+        fs.readFile(filePath, function(err, file) {
+            if(!err) {
+                res.writeHead(200, {"Content-type": contentType});
+                res.end(file, "utf-8");
+            }
+        });
+    }
+}).listen(8000);
 
 stdin.setEncoding('utf8');
 
-var battleShipBoard = new Board(10, 10);
+/*var battleShipBoard = new Board(10, 10);
 var AircraftCarrier = function(){
   Ship.call(this, 5, 'A');
 };
@@ -220,6 +330,6 @@ var doBoardSetup = function() {
     // Show the board.
     console.log(battleShipBoard.toString());
     addNewShip();
-};
+};*/
 
 //doBoardSetup();

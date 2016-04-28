@@ -37,44 +37,59 @@ function Board (width, height) {
  * Function addShip
  * Puts the ship on the board at the specified location and orientation.
  */
-Board.prototype.addShip = function(ship, cell, direction) {
+Board.prototype.addShip = function(board, ship, cell, direction) {
     var count,
-        point = extend({}, cell);
+        point = extend({}, cell),
+        dimension = this.getBoardDimension(board),
     point = normalizeUserPoint(point);
     if (direction === 'horizontal') {
-        if (point.x < 0 || (ship.size + point.x) > this.width) {
+        if (point.x < 0 || (ship.size + point.x) > dimension.width) {
             return false;
         }
         for (count = point.x; count < ship.size + point.x; count++) {
-            if(this.getCell(new Point(count, point.y)) !== 0) {
+            if(this.getCell(new Point(count, point.y), board) !== 0) {
                 return false;
             }
         }
         for (count = point.x; count < ship.size + point.x; count++) {
-            this.setCell(new Point(count, point.y), ship.sign);
+            this.setCell(new Point(count, point.y), ship.sign, board);
         }
-        this.ships[calcNumberFromCell(point, this.width)] = {
+        /*this.ships[calcNumberFromCell(point, this.width)] = {
             type: ship,
             orientation: direction
-        };
+        };*/
         return true;
     } else if (direction === 'vertical') {
-        if (point.y < 0 || (ship.size + point.y) > this.height) {
+        if (point.y < 0 || (ship.size + point.y) > dimension.height) {
             return false;
         }
         for (count = point.y; count < ship.size + point.y; count++) {
-            if(this.getCell(new Point(point.x, count)) !== 0) {
+            if(this.getCell(new Point(point.x, count), board) !== 0) {
                 return false;
             }
         }
         for (count = point.y; count < ship.size + point.y; count++) {
-            this.setCell(new Point(point.x, count), ship.sign);
+            this.setCell(new Point(point.x, count), ship.sign, board);
         }
-        this.ships[calcNumberFromCell(point, this.width)] = {
+        /*this.ships[calcNumberFromCell(point, this.width)] = {
             type: ship,
             orientation: direction
-        };
+        };*/
         return true;
+    }
+};
+
+/**
+ * Function getBoardDimension
+ * Returns the dimension of the board
+ * @returns {{width: *, height: *}}
+ */
+Board.prototype.getBoardDimension = function(board) {
+    if(board) {
+        return {
+            height: board.length,
+            width: board[0] ? board[0].length : 0
+        };
     }
 };
 
@@ -149,8 +164,9 @@ Board.prototype.isAlive = function() {
  *
  *  @param point: Input point is normalized
  */
-Board.prototype.getCell = function(point) {
-    return this.currentState[point.y][point.x];
+Board.prototype.getCell = function(point, board) {
+    //return this.currentState[point.y][point.x];
+    return board[point.y][point.x];
 };
 
 /**
@@ -160,10 +176,11 @@ Board.prototype.getCell = function(point) {
  *
  * @param point: Input point is normalized
  */
-Board.prototype.setCell = function(point, value) {
-    if ((point.x >= 0 && point.x < this.width) &&
-        (point.y >=0 && point.y < this.height)) {
-        this.currentState[point.y][point.x] = value;
+Board.prototype.setCell = function(point, value, board) {
+    var dimension = this.getBoardDimension(board);
+    if ((point.x >= 0 && point.x < dimension.width) &&
+        (point.y >=0 && point.y < dimension.height)) {
+        board[point.y][point.x] = value;
         return true;
     }
     return false;
@@ -244,4 +261,4 @@ function calcCellFromNumber(number, width) {
     return new Point(x, y);
 }
 
-module.exports = Board;
+module.exports = new Board();
